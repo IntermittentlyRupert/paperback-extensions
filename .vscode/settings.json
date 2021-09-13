@@ -1,0 +1,14 @@
+{
+  "breadcrumbs.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.renderIndentGuides": true,
+  "editor.renderWhitespace": "selection",
+  "editor.rulers": [80],
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

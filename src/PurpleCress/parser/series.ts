@@ -1,0 +1,82 @@
+import type { Manga, Chapter } from "paperback-extensions-common";
+import { MangaStatus, LanguageCode } from "paperback-extensions-common";
+
+function getStatus($: cheerio.Root): MangaStatus {
+  const status = $("series__status").text().trim().toLowerCase();
+  console.log(`[getStatus] raw status: ${status}`);
+  switch (status) {
+    case "ongoing":
+      return MangaStatus.ONGOING;
+    case "dropped":
+      return MangaStatus.ABANDONED;
+    case "finished":
+      return MangaStatus.COMPLETED;
+    default:
+      return MangaStatus.UNKNOWN;
+  }
+}
+
+export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
+  console.log(`[parseMangaDetails] start`);
+
+  const rawLastUpdate = $(".chapter__date").first().text().trim();
+  console.log(`[getStatus] raw rawLastUpdate: ${rawLastUpdate}`);
+
+  const title = $(".series__name").text().trim();
+  const image = $("img.series__img").attr("src") || "";
+  const author = $(".series__author")
+    .text()
+    .trim()
+    .split(/\s+/)
+    .slice(1)
+    .join(" ");
+  const desc = $(".series__description").text().trim();
+  const status = getStatus($);
+  const lastUpdate = new Date(rawLastUpdate);
+
+  const info = {
+    id: mangaId,
+    titles: [title],
+    image,
+    author,
+    desc,
+    status,
+    lastUpdate,
+    langFlag: "en",
+  };
+  console.log(`[parseMangaDetails] info: ${JSON.stringify(info)}`);
+
+  console.log(`[parseMangaDetails] returning result`);
+  return createManga(info);
+}
+
+export function parseChapterList($: cheerio.Root, mangaId: string): Chapter[] {
+  console.log(`[parseChapterList] start`);
+  const chapters: Chapter[] = [];
+
+  $(".chapter__card").map((i, chapter) => {
+    console.log(`[parseChapterList] chapter start`);
+    const title = $(".chapter__name", chapter).text().trim();
+
+    let description = $(".chapter__subtitle", chapter).text().trim();
+    if (/^".+"$/.test(description)) {
+      description = description.slice(1, -1);
+    }
+
+    const info = {
+      mangaId,
+      id: encodeURIComponent(title),
+      chapNum: parseFloat(title.split(" ").slice(1).join(" ")),
+      name: description ? `${title}: ${description}` : title,
+      time: new Date($(".chapter__date", chapter).text().trim()),
+      langCode: LanguageCode.ENGLISH,
+    };
+    console.log(`[parseChapterList] info: ${JSON.stringify(info)}`);
+
+    chapters.push(createChapter(info));
+    console.log(`[parseChapterList] chapter done`);
+  });
+
+  console.log(`[parseChapterList] returning result`);
+  return chapters;
+}

@@ -1,0 +1,49 @@
+{
+  "name": "ruperts-extensions",
+  "version": "1.0.0",
+  "description": "Rupert's Paperback Extensions",
+  "author": "Rupert",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:IntermittentlyRupert/paperback-extensions.git"
+  },
+  "repositoryName": "Rupert's Paperback Extensions",
+  "scripts": {
+    "bundle": "paperback bundle",
+    "serve": "paperback serve -p 8000",
+    "lint": "npm run lint:prettier && npm run lint:eslint && npm run lint:types",
+    "lint:prettier": "prettier --check .",
+    "lint:eslint": "eslint --max-warnings 0 .",
+    "lint:types": "tsc --noEmit",
+    "test": "cross-env TZ=UTC jest",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^13.1.0",
+    "@types/cheerio": "^0.22.30",
+    "@types/jest": "^27.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "commitlint": "^13.1.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-security": "^1.4.0",
+    "husky": "^7.0.0",
+    "jest": "^27.1.1",
+    "jest-extended": "^0.11.5",
+    "paperback-cli": "^1.4.0",
+    "prettier": "^2.4.0",
+    "pretty-quick": "^3.1.1",
+    "ts-jest": "^27.0.5",
+    "tsify": "^5.0.4",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
+    "paperback-extensions-common": "^4.3.5"
+  }
+}
