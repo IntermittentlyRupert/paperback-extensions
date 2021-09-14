@@ -130,7 +130,11 @@ export class PurpleCress extends BaseTemplate {
     time: Date,
     ids: string[],
   ): Promise<void> {
-    console.log(`[filterUpdatedManga] finding updates since ${time.getTime()}`);
+    const sinceTime = time.getTime();
+    console.log(
+      `[filterUpdatedManga] finding updates since ${time} (${sinceTime})`,
+    );
+
     const updatedTimestamps = await Promise.all(
       ids.map(async (mangaId) => {
         try {
@@ -139,11 +143,12 @@ export class PurpleCress extends BaseTemplate {
           console.log(`[filterUpdatedManga] got ${mangaId}`);
 
           const updatedAt = parseLastUpdate(data);
+          const updatedAtTime = updatedAt?.getTime();
           console.log(
-            `[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt}`,
+            `[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt} (${updatedAtTime})`,
           );
 
-          const isUpdated = !!updatedAt && updatedAt.getTime() > time.getTime();
+          const isUpdated = updatedAtTime != null && updatedAtTime > sinceTime;
           console.log(
             `[filterUpdatedManga] ${mangaId} isUpdated: ${isUpdated}`,
           );
