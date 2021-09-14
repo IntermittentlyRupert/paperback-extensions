@@ -431,7 +431,7 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 const BaseTemplate_1 = require("../BaseTemplate");
 const parser_1 = require("./parser");
 exports.PurpleCressInfo = {
-    version: "1.0.1",
+    version: "1.0.2",
     name: "Purple Cress",
     icon: "icon.png",
     description: "Extension that pulls manga from PurpleCress.com",
@@ -527,28 +527,27 @@ class PurpleCress extends BaseTemplate_1.BaseTemplate {
     }
     filterUpdatedManga(mangaUpdatesFoundCallback, time, ids) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`[getChapterDetails] finding updates since ${time.getTime()}`);
+            console.log(`[filterUpdatedManga] finding updates since ${time.getTime()}`);
             const updatedTimestamps = yield Promise.all(ids.map((mangaId) => __awaiter(this, void 0, void 0, function* () {
-                var _a;
                 try {
-                    console.log(`[getChapterDetails] fetching ${mangaId}`);
-                    const details = yield this.getMangaDetails(mangaId);
-                    console.log(`[getChapterDetails] got ${mangaId}`);
-                    const updatedAt = ((_a = details === null || details === void 0 ? void 0 : details.lastUpdate) === null || _a === void 0 ? void 0 : _a.getTime()) || null;
-                    console.log(`[getChapterDetails] ${mangaId} updatedAt: ${updatedAt}`);
-                    const isUpdated = !!updatedAt && updatedAt > time.getTime();
-                    console.log(`[getChapterDetails] ${mangaId} isUpdated: ${isUpdated}`);
+                    console.log(`[filterUpdatedManga] fetching ${mangaId}`);
+                    const data = yield this.request(`/series/${mangaId}`);
+                    console.log(`[filterUpdatedManga] got ${mangaId}`);
+                    const updatedAt = (0, parser_1.parseLastUpdate)(data);
+                    console.log(`[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt}`);
+                    const isUpdated = !!updatedAt && updatedAt.getTime() > time.getTime();
+                    console.log(`[filterUpdatedManga] ${mangaId} isUpdated: ${isUpdated}`);
                     return { mangaId, isUpdated };
                 }
                 catch (e) {
-                    console.error(`[getChapterDetails] failed for ${mangaId}: ${e}`);
+                    console.error(`[filterUpdatedManga] failed for ${mangaId}: ${e}`);
                     return { mangaId, isUpdated: false };
                 }
             })));
             const updatedIds = updatedTimestamps
                 .filter(({ isUpdated }) => isUpdated)
                 .map(({ mangaId }) => mangaId);
-            console.log(`[getChapterDetails] updated IDs: ${JSON.stringify(updatedIds)}`);
+            console.log(`[filterUpdatedManga] updated IDs: ${JSON.stringify(updatedIds)}`);
             mangaUpdatesFoundCallback(createMangaUpdates({ ids: updatedIds }));
         });
     }
@@ -665,11 +664,12 @@ exports.parseFullMangaList = parseFullMangaList;
 },{}],52:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BASE_URL = exports.parseChapterDetails = exports.parseChapterList = exports.parseMangaDetails = exports.parseFullMangaList = exports.parseHomepage = void 0;
+exports.BASE_URL = exports.parseChapterDetails = exports.parseChapterList = exports.parseMangaDetails = exports.parseLastUpdate = exports.parseFullMangaList = exports.parseHomepage = void 0;
 var homepage_1 = require("./homepage");
 Object.defineProperty(exports, "parseHomepage", { enumerable: true, get: function () { return homepage_1.parseHomepage; } });
 Object.defineProperty(exports, "parseFullMangaList", { enumerable: true, get: function () { return homepage_1.parseFullMangaList; } });
 var series_1 = require("./series");
+Object.defineProperty(exports, "parseLastUpdate", { enumerable: true, get: function () { return series_1.parseLastUpdate; } });
 Object.defineProperty(exports, "parseMangaDetails", { enumerable: true, get: function () { return series_1.parseMangaDetails; } });
 Object.defineProperty(exports, "parseChapterList", { enumerable: true, get: function () { return series_1.parseChapterList; } });
 var chapter_1 = require("./chapter");
@@ -679,7 +679,7 @@ exports.BASE_URL = "https://purplecress.com";
 },{"./chapter":50,"./homepage":51,"./series":53}],53:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseChapterList = exports.parseMangaDetails = void 0;
+exports.parseChapterList = exports.parseMangaDetails = exports.parseLastUpdate = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 function getStatus($) {
     const status = $("series__status").text().trim().toLowerCase();
@@ -695,10 +695,22 @@ function getStatus($) {
             return paperback_extensions_common_1.MangaStatus.UNKNOWN;
     }
 }
+function parseLastUpdate($) {
+    console.log(`[parseLastUpdate] start`);
+    const rawLastUpdate = $(".chapter__date").first().text().trim();
+    console.log(`[parseLastUpdate] raw lastUpdate: ${rawLastUpdate}`);
+    const lastUpdate = new Date(rawLastUpdate);
+    console.log(`[parseLastUpdate] parsed lastUpdate: ${rawLastUpdate}`);
+    if (isNaN(lastUpdate.getTime())) {
+        console.error(`[parseLastUpdate] date is not valid!`);
+        return undefined;
+    }
+    console.log(`[parseLastUpdate] done`);
+    return lastUpdate;
+}
+exports.parseLastUpdate = parseLastUpdate;
 function parseMangaDetails($, mangaId) {
     console.log(`[parseMangaDetails] start`);
-    const rawLastUpdate = $(".chapter__date").first().text().trim();
-    console.log(`[getStatus] raw rawLastUpdate: ${rawLastUpdate}`);
     const title = $(".series__name").text().trim();
     const image = $("img.series__img").attr("src") || "";
     const author = $(".series__author")
@@ -709,7 +721,7 @@ function parseMangaDetails($, mangaId) {
         .join(" ");
     const desc = $(".series__description").text().trim();
     const status = getStatus($);
-    const lastUpdate = new Date(rawLastUpdate);
+    const lastUpdate = parseLastUpdate($);
     const info = {
         id: mangaId,
         titles: [title],
