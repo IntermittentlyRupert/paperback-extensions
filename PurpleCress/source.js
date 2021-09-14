@@ -527,15 +527,17 @@ class PurpleCress extends BaseTemplate_1.BaseTemplate {
     }
     filterUpdatedManga(mangaUpdatesFoundCallback, time, ids) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(`[filterUpdatedManga] finding updates since ${time.getTime()}`);
+            const sinceTime = time.getTime();
+            console.log(`[filterUpdatedManga] finding updates since ${time} (${sinceTime})`);
             const updatedTimestamps = yield Promise.all(ids.map((mangaId) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     console.log(`[filterUpdatedManga] fetching ${mangaId}`);
                     const data = yield this.request(`/series/${mangaId}`);
                     console.log(`[filterUpdatedManga] got ${mangaId}`);
                     const updatedAt = (0, parser_1.parseLastUpdate)(data);
-                    console.log(`[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt}`);
-                    const isUpdated = !!updatedAt && updatedAt.getTime() > time.getTime();
+                    const updatedAtTime = updatedAt === null || updatedAt === void 0 ? void 0 : updatedAt.getTime();
+                    console.log(`[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt} (${updatedAtTime})`);
+                    const isUpdated = updatedAtTime != null && updatedAtTime > sinceTime;
                     console.log(`[filterUpdatedManga] ${mangaId} isUpdated: ${isUpdated}`);
                     return { mangaId, isUpdated };
                 }
