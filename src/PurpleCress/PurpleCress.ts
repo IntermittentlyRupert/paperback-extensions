@@ -16,12 +16,13 @@ import {
   parseHomepage,
   parseFullMangaList,
   parseMangaDetails,
+  parseLastUpdate,
   parseChapterList,
   parseChapterDetails,
 } from "./parser";
 
 export const PurpleCressInfo: SourceInfo = {
-  version: "1.0.1",
+  version: "1.0.2",
   name: "Purple Cress",
   icon: "icon.png",
   description: "Extension that pulls manga from PurpleCress.com",
@@ -129,20 +130,26 @@ export class PurpleCress extends BaseTemplate {
     time: Date,
     ids: string[],
   ): Promise<void> {
-    console.log(`[getChapterDetails] finding updates since ${time.getTime()}`);
+    console.log(`[filterUpdatedManga] finding updates since ${time.getTime()}`);
     const updatedTimestamps = await Promise.all(
       ids.map(async (mangaId) => {
         try {
-          console.log(`[getChapterDetails] fetching ${mangaId}`);
-          const details = await this.getMangaDetails(mangaId);
-          console.log(`[getChapterDetails] got ${mangaId}`);
-          const updatedAt = details?.lastUpdate?.getTime() || null;
-          console.log(`[getChapterDetails] ${mangaId} updatedAt: ${updatedAt}`);
-          const isUpdated = !!updatedAt && updatedAt > time.getTime();
-          console.log(`[getChapterDetails] ${mangaId} isUpdated: ${isUpdated}`);
+          console.log(`[filterUpdatedManga] fetching ${mangaId}`);
+          const data = await this.request(`/series/${mangaId}`);
+          console.log(`[filterUpdatedManga] got ${mangaId}`);
+
+          const updatedAt = parseLastUpdate(data);
+          console.log(
+            `[filterUpdatedManga] ${mangaId} updatedAt: ${updatedAt}`,
+          );
+
+          const isUpdated = !!updatedAt && updatedAt.getTime() > time.getTime();
+          console.log(
+            `[filterUpdatedManga] ${mangaId} isUpdated: ${isUpdated}`,
+          );
           return { mangaId, isUpdated };
         } catch (e) {
-          console.error(`[getChapterDetails] failed for ${mangaId}: ${e}`);
+          console.error(`[filterUpdatedManga] failed for ${mangaId}: ${e}`);
           return { mangaId, isUpdated: false };
         }
       }),
@@ -153,7 +160,7 @@ export class PurpleCress extends BaseTemplate {
       .map(({ mangaId }) => mangaId);
 
     console.log(
-      `[getChapterDetails] updated IDs: ${JSON.stringify(updatedIds)}`,
+      `[filterUpdatedManga] updated IDs: ${JSON.stringify(updatedIds)}`,
     );
 
     mangaUpdatesFoundCallback(createMangaUpdates({ ids: updatedIds }));

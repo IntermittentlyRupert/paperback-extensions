@@ -16,11 +16,26 @@ function getStatus($: cheerio.Root): MangaStatus {
   }
 }
 
-export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
-  console.log(`[parseMangaDetails] start`);
+export function parseLastUpdate($: cheerio.Root): Date | undefined {
+  console.log(`[parseLastUpdate] start`);
 
   const rawLastUpdate = $(".chapter__date").first().text().trim();
-  console.log(`[getStatus] raw rawLastUpdate: ${rawLastUpdate}`);
+  console.log(`[parseLastUpdate] raw lastUpdate: ${rawLastUpdate}`);
+
+  const lastUpdate = new Date(rawLastUpdate);
+  console.log(`[parseLastUpdate] parsed lastUpdate: ${rawLastUpdate}`);
+
+  if (isNaN(lastUpdate.getTime())) {
+    console.error(`[parseLastUpdate] date is not valid!`);
+    return undefined;
+  }
+
+  console.log(`[parseLastUpdate] done`);
+  return lastUpdate;
+}
+
+export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
+  console.log(`[parseMangaDetails] start`);
 
   const title = $(".series__name").text().trim();
   const image = $("img.series__img").attr("src") || "";
@@ -32,7 +47,7 @@ export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
     .join(" ");
   const desc = $(".series__description").text().trim();
   const status = getStatus($);
-  const lastUpdate = new Date(rawLastUpdate);
+  const lastUpdate = parseLastUpdate($);
 
   const info = {
     id: mangaId,
