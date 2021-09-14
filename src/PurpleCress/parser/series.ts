@@ -23,7 +23,7 @@ export function parseLastUpdate($: cheerio.Root): Date | undefined {
   console.log(`[parseLastUpdate] raw lastUpdate: ${rawLastUpdate}`);
 
   const lastUpdate = new Date(rawLastUpdate);
-  console.log(`[parseLastUpdate] parsed lastUpdate: ${rawLastUpdate}`);
+  console.log(`[parseLastUpdate] parsed lastUpdate: ${lastUpdate}`);
 
   if (isNaN(lastUpdate.getTime())) {
     console.error(`[parseLastUpdate] date is not valid!`);
