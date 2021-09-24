@@ -22,6 +22,10 @@ export function parseLastUpdate($: cheerio.Root): Date | undefined {
   const rawLastUpdate = $(".chapter__date").first().text().trim();
   console.log(`[parseLastUpdate] raw lastUpdate: ${rawLastUpdate}`);
 
+  // PurpleCress use a timezone of somewhere between UTC and UTC+2:20 to
+  // generate the `YYYY-mm-dd` update dates on the manga detail page (based on
+  // comparison with the exact update timestamps from the `__NUXT__` data for a
+  // whole bunch of chapters), so just assume it's probably UTC.
   const lastUpdate = new Date(rawLastUpdate);
   console.log(`[parseLastUpdate] parsed lastUpdate: ${lastUpdate}`);
 

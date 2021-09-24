@@ -22,7 +22,7 @@ import {
 } from "./parser";
 
 export const PurpleCressInfo: SourceInfo = {
-  version: "1.0.2",
+  version: "1.0.3",
   name: "Purple Cress",
   icon: "icon.png",
   description: "Extension that pulls manga from PurpleCress.com",
@@ -130,7 +130,25 @@ export class PurpleCress extends BaseTemplate {
     time: Date,
     ids: string[],
   ): Promise<void> {
-    const sinceTime = time.getTime();
+    console.log(`[filterUpdatedManga] requesting updates since ${time}`);
+
+    // PurpleCress only gives us date-precision for the update time on the manga
+    // page, but Paperback asks for updates since a specific date-time. If we
+    // did a naive comparison, this would cause us to miss updates if an update
+    // is posted on a day AFTER updates are fetched for midnight on that day.
+    //
+    // Instead, snap the requested date back to the start of the day. This will
+    // cause us to double-report updates if `filterUpdatedManga` is called
+    // multiple times for the same day, but it's probably better than the
+    // alternative.
+    //
+    // We could get the exact update timestamp by doing a second request for the
+    // actual chapter page and pulling it from the `__NUXT__` data, but I'd
+    // rather avoid that unless the double-updating is a big enough issue.
+    const sinceDate = new Date(time.getTime());
+    sinceDate.setHours(0, 0, 0, 0);
+
+    const sinceTime = sinceDate.getTime();
     console.log(
       `[filterUpdatedManga] finding updates since ${time} (${sinceTime})`,
     );
