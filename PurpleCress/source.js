@@ -431,7 +431,7 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 const BaseTemplate_1 = require("../BaseTemplate");
 const parser_1 = require("./parser");
 exports.PurpleCressInfo = {
-    version: "1.0.3",
+    version: "1.0.4",
     name: "Purple Cress",
     icon: "icon.png",
     description: "Extension that pulls manga from PurpleCress.com",
@@ -533,16 +533,17 @@ class PurpleCress extends BaseTemplate_1.BaseTemplate {
             // did a naive comparison, this would cause us to miss updates if an update
             // is posted on a day AFTER updates are fetched for midnight on that day.
             //
-            // Instead, snap the requested date back to the start of the day. This will
-            // cause us to double-report updates if `filterUpdatedManga` is called
-            // multiple times for the same day, but it's probably better than the
-            // alternative.
+            // Instead, snap the requested date back to the start of the UTC day (update
+            // timestamps are snapped to the start of their UTC day; see
+            // `parser/series.ts > parseLastUpdate`). This will cause us to
+            // double-report updates if `filterUpdatedManga` is called multiple times
+            // for the same day, but it's probably better than the alternative.
             //
             // We could get the exact update timestamp by doing a second request for the
             // actual chapter page and pulling it from the `__NUXT__` data, but I'd
             // rather avoid that unless the double-updating is a big enough issue.
             const sinceDate = new Date(time.getTime());
-            sinceDate.setHours(0, 0, 0, 0);
+            sinceDate.setUTCHours(0, 0, 0, 0);
             const sinceTime = sinceDate.getTime();
             console.log(`[filterUpdatedManga] finding updates since ${time} (${sinceTime})`);
             const updatedTimestamps = yield Promise.all(ids.map((mangaId) => __awaiter(this, void 0, void 0, function* () {
@@ -721,6 +722,9 @@ function parseLastUpdate($) {
     // generate the `YYYY-mm-dd` update dates on the manga detail page (based on
     // comparison with the exact update timestamps from the `__NUXT__` data for a
     // whole bunch of chapters), so just assume it's probably UTC.
+    //
+    // The real update timestamp will be somewhere between `lastUpdate` and
+    // `lastUpdate + 23:59:59.999`.
     const lastUpdate = new Date(rawLastUpdate);
     console.log(`[parseLastUpdate] parsed lastUpdate: ${lastUpdate}`);
     if (isNaN(lastUpdate.getTime())) {
