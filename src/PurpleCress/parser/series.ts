@@ -26,6 +26,9 @@ export function parseLastUpdate($: cheerio.Root): Date | undefined {
   // generate the `YYYY-mm-dd` update dates on the manga detail page (based on
   // comparison with the exact update timestamps from the `__NUXT__` data for a
   // whole bunch of chapters), so just assume it's probably UTC.
+  //
+  // The real update timestamp will be somewhere between `lastUpdate` and
+  // `lastUpdate + 23:59:59.999`.
   const lastUpdate = new Date(rawLastUpdate);
   console.log(`[parseLastUpdate] parsed lastUpdate: ${lastUpdate}`);
 

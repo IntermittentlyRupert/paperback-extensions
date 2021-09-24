@@ -22,7 +22,7 @@ import {
 } from "./parser";
 
 export const PurpleCressInfo: SourceInfo = {
-  version: "1.0.3",
+  version: "1.0.4",
   name: "Purple Cress",
   icon: "icon.png",
   description: "Extension that pulls manga from PurpleCress.com",
@@ -137,20 +137,21 @@ export class PurpleCress extends BaseTemplate {
     // did a naive comparison, this would cause us to miss updates if an update
     // is posted on a day AFTER updates are fetched for midnight on that day.
     //
-    // Instead, snap the requested date back to the start of the day. This will
-    // cause us to double-report updates if `filterUpdatedManga` is called
-    // multiple times for the same day, but it's probably better than the
-    // alternative.
+    // Instead, snap the requested date back to the start of the UTC day (update
+    // timestamps are snapped to the start of their UTC day; see
+    // `parser/series.ts > parseLastUpdate`). This will cause us to
+    // double-report updates if `filterUpdatedManga` is called multiple times
+    // for the same day, but it's probably better than the alternative.
     //
     // We could get the exact update timestamp by doing a second request for the
     // actual chapter page and pulling it from the `__NUXT__` data, but I'd
     // rather avoid that unless the double-updating is a big enough issue.
     const sinceDate = new Date(time.getTime());
-    sinceDate.setHours(0, 0, 0, 0);
+    sinceDate.setUTCHours(0, 0, 0, 0);
 
     const sinceTime = sinceDate.getTime();
     console.log(
-      `[filterUpdatedManga] finding updates since ${time} (${sinceTime})`,
+      `[filterUpdatedManga] finding updates since ${sinceDate} (${sinceTime})`,
     );
 
     const updatedTimestamps = await Promise.all(
