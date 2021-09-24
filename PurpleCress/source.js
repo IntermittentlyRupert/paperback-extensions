@@ -545,7 +545,7 @@ class PurpleCress extends BaseTemplate_1.BaseTemplate {
             const sinceDate = new Date(time.getTime());
             sinceDate.setUTCHours(0, 0, 0, 0);
             const sinceTime = sinceDate.getTime();
-            console.log(`[filterUpdatedManga] finding updates since ${time} (${sinceTime})`);
+            console.log(`[filterUpdatedManga] finding updates since ${sinceDate} (${sinceTime})`);
             const updatedTimestamps = yield Promise.all(ids.map((mangaId) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     console.log(`[filterUpdatedManga] fetching ${mangaId}`);
