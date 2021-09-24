@@ -431,7 +431,7 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 const BaseTemplate_1 = require("../BaseTemplate");
 const parser_1 = require("./parser");
 exports.PurpleCressInfo = {
-    version: "1.0.2",
+    version: "1.0.3",
     name: "Purple Cress",
     icon: "icon.png",
     description: "Extension that pulls manga from PurpleCress.com",
@@ -527,7 +527,23 @@ class PurpleCress extends BaseTemplate_1.BaseTemplate {
     }
     filterUpdatedManga(mangaUpdatesFoundCallback, time, ids) {
         return __awaiter(this, void 0, void 0, function* () {
-            const sinceTime = time.getTime();
+            console.log(`[filterUpdatedManga] requesting updates since ${time}`);
+            // PurpleCress only gives us date-precision for the update time on the manga
+            // page, but Paperback asks for updates since a specific date-time. If we
+            // did a naive comparison, this would cause us to miss updates if an update
+            // is posted on a day AFTER updates are fetched for midnight on that day.
+            //
+            // Instead, snap the requested date back to the start of the day. This will
+            // cause us to double-report updates if `filterUpdatedManga` is called
+            // multiple times for the same day, but it's probably better than the
+            // alternative.
+            //
+            // We could get the exact update timestamp by doing a second request for the
+            // actual chapter page and pulling it from the `__NUXT__` data, but I'd
+            // rather avoid that unless the double-updating is a big enough issue.
+            const sinceDate = new Date(time.getTime());
+            sinceDate.setHours(0, 0, 0, 0);
+            const sinceTime = sinceDate.getTime();
             console.log(`[filterUpdatedManga] finding updates since ${time} (${sinceTime})`);
             const updatedTimestamps = yield Promise.all(ids.map((mangaId) => __awaiter(this, void 0, void 0, function* () {
                 try {
@@ -701,6 +717,10 @@ function parseLastUpdate($) {
     console.log(`[parseLastUpdate] start`);
     const rawLastUpdate = $(".chapter__date").first().text().trim();
     console.log(`[parseLastUpdate] raw lastUpdate: ${rawLastUpdate}`);
+    // PurpleCress use a timezone of somewhere between UTC and UTC+2:20 to
+    // generate the `YYYY-mm-dd` update dates on the manga detail page (based on
+    // comparison with the exact update timestamps from the `__NUXT__` data for a
+    // whole bunch of chapters), so just assume it's probably UTC.
     const lastUpdate = new Date(rawLastUpdate);
     console.log(`[parseLastUpdate] parsed lastUpdate: ${lastUpdate}`);
     if (isNaN(lastUpdate.getTime())) {
