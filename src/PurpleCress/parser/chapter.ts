@@ -1,7 +1,8 @@
+import type { CheerioAPI } from "cheerio";
 import type { ChapterDetails } from "paperback-extensions-common";
 
 export function parseChapterDetails(
-  $: cheerio.Root,
+  $: CheerioAPI,
   mangaId: string,
   chapterId: string,
 ): ChapterDetails {

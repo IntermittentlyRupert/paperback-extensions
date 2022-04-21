@@ -19,6 +19,8 @@ jobs:
       - name: 🔨 Build & Test
         run: |
           npm ci
+          npm run lint
+          npm run test
           npm run bundle
           touch bundles/.nojeykll
 

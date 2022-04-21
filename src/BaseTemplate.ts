@@ -1,3 +1,4 @@
+import type { CheerioAPI } from "cheerio";
 import { Source } from "paperback-extensions-common";
 
 export abstract class BaseTemplate extends Source {
@@ -8,7 +9,7 @@ export abstract class BaseTemplate extends Source {
     requestTimeout: 10000,
   });
 
-  protected async request(url: string): Promise<cheerio.Root> {
+  protected async request(url: string): Promise<CheerioAPI> {
     console.log(`[request] starts: ${url}`);
     const options = createRequestObject({
       method: "GET",

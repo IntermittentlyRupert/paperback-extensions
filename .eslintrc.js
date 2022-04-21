@@ -1,3 +1,12 @@
+const basePlugins = ["security", "import"];
+
+const baseExtends = [
+  "eslint:recommended",
+  "plugin:promise/recommended",
+  "plugin:security/recommended",
+  "prettier",
+];
+
 const baseRules = {
   "security/detect-object-injection": "off",
   "security/detect-non-literal-fs-filename": "off",
@@ -9,6 +18,7 @@ const baseRules = {
   "no-setter-return": "error",
   "default-case": "error",
   "default-param-last": "error",
+  "no-shadow": "error",
   "prefer-object-spread": "error",
   "grouped-accessor-pairs": "error",
   "no-constructor-return": "error",
@@ -16,6 +26,7 @@ const baseRules = {
   "no-loop-func": "error",
   "no-useless-concat": "error",
   "radix": "error",
+  "require-await": "error",
   "no-label-var": "error",
   "no-buffer-constructor": "error",
   "no-mixed-requires": "error",
@@ -69,31 +80,13 @@ const baseRules = {
   ],
 };
 
-const jsRules = {
-  "require-await": "error",
-  "no-shadow": "error",
-  "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-  "import/no-named-default": "off",
-};
-
-const tsRules = {
-  "no-undef": "off", // (covered by tsc)
-  "@typescript-eslint/no-explicit-any": "off",
-  "no-shadow": "off",
-  "@typescript-eslint/no-shadow": "error",
-  "no-unused-vars": "off",
-  "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-  "require-await": "off",
-  "@typescript-eslint/require-await": "error",
-  "@typescript-eslint/no-non-null-assertion": "error",
-};
-
 module.exports = {
-  extends: ["eslint:recommended", "prettier"],
-  plugins: ["import", "security", "promise", "@typescript-eslint"],
   env: {
-    es2021: true,
     node: true,
+    es2021: true,
+  },
+  globals: {
+    Promise: "readonly",
   },
   settings: {
     "import/resolver": {
@@ -107,19 +100,40 @@ module.exports = {
       files: ["**/*.ts"],
       parser: "@typescript-eslint/parser",
       parserOptions: {
-        project: "./tsconfig.eslint.json",
+        project: "./tsconfig.json",
       },
-      rules: { ...baseRules, ...tsRules },
+      plugins: [...basePlugins, "@typescript-eslint"],
+      extends: [
+        ...baseExtends,
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+      ],
+      rules: {
+        ...baseRules,
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": "error",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          { argsIgnorePattern: "^_" },
+        ],
+        "require-await": "off",
+        "@typescript-eslint/require-await": "error",
+      },
     },
     {
-      files: ["**/*.js"],
-      rules: { ...baseRules, ...jsRules },
-    },
-    {
-      files: ["**/tests/**/*", "**/__tests__/**/*.js", "**/__mocks__/**/*.js"],
+      files: ["**/__tests__/**/*.test.js"],
+      parser: "@babel/eslint-parser",
       env: {
         jest: true,
         jasmine: true,
+      },
+      plugins: basePlugins,
+      extends: baseExtends,
+      rules: {
+        ...baseRules,
+        "import/no-named-default": "off",
       },
     },
   ],

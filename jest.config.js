@@ -1,11 +1,15 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
   rootDir: ".",
   roots: ["./src"],
-  testMatch: ["**/tests/**/*.test.[tj]s"],
+
   setupFilesAfterEnv: ["jest-extended"],
-  resetMocks: true,
-  moduleFileExtensions: ["ts", "js", "json", "d.ts"],
-  preset: "ts-jest",
+
+  collectCoverage: false,
+  coverageReporters: ["json", "lcov"],
+  coverageDirectory: "./cov",
+  collectCoverageFrom: ["**/*.ts", "**/*.js", "!**/*.d.ts", "!test-utils/**"],
+
   testEnvironment: "node",
+  moduleFileExtensions: ["ts", "js", "json", "d.ts"],
+  resetMocks: true,
 };

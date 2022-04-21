@@ -4,11 +4,11 @@
   "description": "Rupert's Paperback Extensions",
   "author": "Rupert",
   "license": "MIT",
+  "repositoryName": "Rupert's Paperback Extensions",
   "repository": {
     "type": "git",
     "url": "git@github.com:IntermittentlyRupert/paperback-extensions.git"
   },
-  "repositoryName": "Rupert's Paperback Extensions",
   "scripts": {
     "bundle": "paperback bundle",
     "serve": "paperback serve -p 8000",
@@ -16,34 +16,36 @@
     "lint:prettier": "prettier --check .",
     "lint:eslint": "eslint --max-warnings 0 .",
     "lint:types": "tsc --noEmit",
-    "test": "cross-env TZ=UTC jest",
+    "lint:fix": "eslint --max-warnings 0 --fix . && prettier --write .",
+    "test": "cross-env TZ=UTC jest --passWithNoTests",
+    "test:coverage": "cross-env TZ=UTC jest --collectCoverage",
     "prepare": "husky install"
-  },
-  "devDependencies": {
-    "@commitlint/config-conventional": "^13.1.0",
-    "@types/cheerio": "^0.22.30",
-    "@types/jest": "^27.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
-    "commitlint": "^13.1.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.24.2",
-    "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-security": "^1.4.0",
-    "husky": "^7.0.0",
-    "jest": "^27.1.1",
-    "jest-extended": "^0.11.5",
-    "paperback-cli": "^1.4.0",
-    "prettier": "^2.4.0",
-    "pretty-quick": "^3.1.1",
-    "ts-jest": "^27.0.5",
-    "tsify": "^5.0.4",
-    "typescript": "^4.4.3"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
-    "paperback-extensions-common": "^4.3.5"
+    "paperback-extensions-common": "^5.0.0-alpha.7"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "commitlint": "^16.2.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-security": "^1.5.0",
+    "husky": "^7.0.4",
+    "jest": "^27.5.1",
+    "jest-extended": "^2.0.0",
+    "paperback-cli": "^2.0.0-alpha.13",
+    "prettier": "^2.6.2",
+    "pretty-quick": "^3.1.3",
+    "typescript": "^4.6.3"
   }
 }

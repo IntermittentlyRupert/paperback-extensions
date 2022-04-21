@@ -1,8 +1,9 @@
+import type { CheerioAPI, Element } from "cheerio";
 import type { HomeSection, MangaTile } from "paperback-extensions-common";
 
-function getSections($: cheerio.Root): {
-  latest: cheerio.Element;
-  all: cheerio.Element;
+function getSections($: CheerioAPI): {
+  latest: Element;
+  all: Element;
 } {
   const sections = $(".section--1 .wrap--content--no-margin").children();
   const latest = sections[0];
@@ -10,7 +11,7 @@ function getSections($: cheerio.Root): {
   return { latest, all };
 }
 
-function getSectionTitle($: cheerio.Root, section: cheerio.Element): string {
+function getSectionTitle($: CheerioAPI, section: Element): string {
   // trim the first word, because it's just the icon alt text
   return $("h1", section)
     .text()
@@ -21,10 +22,7 @@ function getSectionTitle($: cheerio.Root, section: cheerio.Element): string {
     .join(" ");
 }
 
-function getLatestItems(
-  $: cheerio.Root,
-  section: cheerio.Element,
-): MangaTile[] {
+function getLatestItems($: CheerioAPI, section: Element): MangaTile[] {
   console.log(`[getLatestItems] start`);
   const tiles: MangaTile[] = [];
 
@@ -50,7 +48,7 @@ function getLatestItems(
   return tiles;
 }
 
-function getCardItems($: cheerio.Root, section: cheerio.Element): MangaTile[] {
+function getCardItems($: CheerioAPI, section: Element): MangaTile[] {
   console.log(`[getCardItems] start`);
   const tiles: MangaTile[] = [];
 
@@ -74,7 +72,7 @@ function getCardItems($: cheerio.Root, section: cheerio.Element): MangaTile[] {
   return tiles;
 }
 
-export function parseHomepage($: cheerio.Root): HomeSection[] {
+export function parseHomepage($: CheerioAPI): HomeSection[] {
   console.log("[parseHomepage] getting sections");
   const { latest, all } = getSections($);
 
@@ -98,7 +96,7 @@ export function parseHomepage($: cheerio.Root): HomeSection[] {
   return [createHomeSection(latestSection), createHomeSection(allSection)];
 }
 
-export function parseFullMangaList($: cheerio.Root) {
+export function parseFullMangaList($: CheerioAPI) {
   const { all } = getSections($);
   return getCardItems($, all);
 }

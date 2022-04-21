@@ -1,7 +1,8 @@
+import type { CheerioAPI } from "cheerio";
 import type { Manga, Chapter } from "paperback-extensions-common";
 import { MangaStatus, LanguageCode } from "paperback-extensions-common";
 
-function getStatus($: cheerio.Root): MangaStatus {
+function getStatus($: CheerioAPI): MangaStatus {
   const status = $("series__status").text().trim().toLowerCase();
   console.log(`[getStatus] raw status: ${status}`);
   switch (status) {
@@ -16,7 +17,7 @@ function getStatus($: cheerio.Root): MangaStatus {
   }
 }
 
-export function parseLastUpdate($: cheerio.Root): Date | undefined {
+export function parseLastUpdate($: CheerioAPI): Date | undefined {
   console.log(`[parseLastUpdate] start`);
 
   const rawLastUpdate = $(".chapter__date").first().text().trim();
@@ -41,7 +42,7 @@ export function parseLastUpdate($: cheerio.Root): Date | undefined {
   return lastUpdate;
 }
 
-export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
+export function parseMangaDetails($: CheerioAPI, mangaId: string): Manga {
   console.log(`[parseMangaDetails] start`);
 
   const title = $(".series__name").text().trim();
@@ -72,7 +73,7 @@ export function parseMangaDetails($: cheerio.Root, mangaId: string): Manga {
   return createManga(info);
 }
 
-export function parseChapterList($: cheerio.Root, mangaId: string): Chapter[] {
+export function parseChapterList($: CheerioAPI, mangaId: string): Chapter[] {
   console.log(`[parseChapterList] start`);
   const chapters: Chapter[] = [];
 
